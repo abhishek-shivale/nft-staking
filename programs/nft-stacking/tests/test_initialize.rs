@@ -1,32 +1,16 @@
+mod helpers;
 
-use {
-    anchor_lang::{solana_program::instruction::Instruction, InstructionData, ToAccountMetas},
-    litesvm::LiteSVM,
-    solana_message::{Message, VersionedMessage},
-    solana_signer::Signer,
-    solana_keypair::Keypair,
-    solana_transaction::versioned::VersionedTransaction,
-};
+use helpers::*;
+
 
 #[test]
-fn test_initialize() {
-    let program_id = nft_stacking::id();
-    let payer = Keypair::new();
-    let mut svm = LiteSVM::new();
-    let bytes = include_bytes!("../../../target/deploy/nft_stacking.so");
-    svm.add_program(program_id, bytes).unwrap();
-    svm.airdrop(&payer.pubkey(), 1_000_000_000).unwrap();
-    
-    let instruction = Instruction::new_with_bytes(
-        program_id,
-        &nft_stacking::instruction::Initialize {}.data(),
-        nft_stacking::accounts::Initialize {}.to_account_metas(None),
-    );
+fn init_creates_stake_state_with_correct_fields() {
+    let mut svm = init_svm();
+    let setup = setup_collection(&mut svm, DEFAULT_REWARDS_BPS, DEFAULT_FREEZE_PERIOD_DAYS);
 
-    let blockhash = svm.latest_blockhash();
-    let msg = Message::new_with_blockhash(&[instruction], Some(&payer.pubkey()), &blockhash);
-    let tx = VersionedTransaction::try_new(VersionedMessage::Legacy(msg), &[payer]).unwrap();
-
-    let res = svm.send_transaction(tx);
-    assert!(res.is_ok());
+    let state = fetch_stake_state(&svm, &setup.stake_state);
+    assert_eq!(state.rewards_bps, DEFAULT_REWARDS_BPS);
+    assert_eq!(state.freeze_period, DEFAULT_FREEZE_PERIOD_DAYS);
+    assert_ne!(state.bump, 0);
+    assert_ne!(state.reward_bump, 0);
 }
