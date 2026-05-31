@@ -15,7 +15,19 @@ declare_id!("8MSZo9zf8Y4MVaSf6Mu4qJg9pCeWVgtquLTU7S9ud29");
 pub mod nft_stacking {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        initialize::handler(ctx)
+    pub fn initialize(
+        ctx: Context<Initialize>,
+        rewards_bps: u16,
+        freeze_period: u16,
+    ) -> Result<()> {
+        initialize::handler(ctx, rewards_bps, freeze_period)
+    }
+
+    pub fn create_collection(
+        ctx: Context<CreateCollection>,
+        name: String,
+        uri: String,
+    ) -> Result<()> {
+        create_collection::handler(ctx, name, uri)
     }
 }
