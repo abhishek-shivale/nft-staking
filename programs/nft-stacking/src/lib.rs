@@ -30,4 +30,20 @@ pub mod nft_stacking {
     ) -> Result<()> {
         create_collection::handler(ctx, name, uri)
     }
+
+    pub fn mint_asset(ctx: Context<MintAsset>, name: String, uri: String) -> Result<()> {
+        mint_asset::handler(ctx, name, uri)
+    }
+
+    pub fn stake(ctx: Context<Stake>) -> Result<()> {
+        stake::handler(ctx)
+    }
+
+    pub fn unstake(ctx: Context<Unstake>) -> Result<()> {
+        unstake::handler(ctx)
+    }
+
+    pub fn claim_reward(ctx: Context<ClaimReward>) -> Result<()> {
+        claim_reward::handler(ctx)
+    }
 }
